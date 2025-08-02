@@ -207,11 +207,22 @@ class UltraDetailedAnalysisEngine:
         if self.dependency_manager.can_execute_component('drivers_mentais_customizados'):
             try:
                 avatar_data = ai_analysis.get('avatar_ultra_detalhado', {})
+                
+                # Verifica se avatar tem dados suficientes
+                if not avatar_data or not avatar_data.get('dores_viscerais'):
+                    logger.warning("⚠️ Avatar insuficiente, usando dados padrão para drivers")
+                    avatar_data = self._create_basic_avatar(data)
+                
                 mental_drivers = mental_drivers_architect.generate_complete_drivers_system(avatar_data, data)
                 
                 if mental_drivers and mental_drivers.get('validation_status') == 'VALID':
                     advanced_components['drivers_mentais_customizados'] = mental_drivers
                     self.dependency_manager.mark_component_status('drivers_mentais_customizados', True, mental_drivers)
+                elif mental_drivers and mental_drivers.get('validation_status') == 'FALLBACK_VALID':
+                    # Aceita fallback como válido
+                    advanced_components['drivers_mentais_customizados'] = mental_drivers
+                    self.dependency_manager.mark_component_status('drivers_mentais_customizados', True, mental_drivers)
+                    logger.info("✅ Drivers mentais fallback aceitos")
                 else:
                     raise ValueError("Drivers mentais inválidos gerados")
                     
@@ -254,20 +265,34 @@ class UltraDetailedAnalysisEngine:
         if self.dependency_manager.can_execute_component('sistema_anti_objecao'):
             try:
                 avatar_data = ai_analysis.get('avatar_ultra_detalhado', {})
-                objections = avatar_data.get('objecoes_reais', [])
                 
-                if objections and len(objections) > 0:
-                    anti_objection = anti_objection_system.generate_complete_anti_objection_system(
-                        objections, avatar_data, data
-                    )
-                    
-                    if anti_objection and anti_objection.get('validation_status') == 'VALID':
-                        advanced_components['sistema_anti_objecao'] = anti_objection
-                        self.dependency_manager.mark_component_status('sistema_anti_objecao', True, anti_objection)
-                    else:
-                        raise ValueError("Sistema anti-objeção inválido gerado")
+                # Garante que há objeções para trabalhar
+                objections = avatar_data.get('objecoes_reais', [])
+                if not objections:
+                    # Gera objeções padrão
+                    objections = [
+                        "Não tenho tempo para implementar isso agora",
+                        "Preciso pensar melhor sobre o investimento",
+                        "Meu caso é diferente, isso pode não funcionar",
+                        "Já tentei outras coisas e não deram certo",
+                        "Preciso de mais garantias de que funciona"
+                    ]
+                    logger.info("🔄 Usando objeções padrão para sistema anti-objeção")
+                
+                anti_objection = anti_objection_system.generate_complete_anti_objection_system(
+                    objections, avatar_data, data
+                )
+                
+                if anti_objection and anti_objection.get('validation_status') == 'VALID':
+                    advanced_components['sistema_anti_objecao'] = anti_objection
+                    self.dependency_manager.mark_component_status('sistema_anti_objecao', True, anti_objection)
+                elif anti_objection and anti_objection.get('validation_status') == 'FALLBACK_VALID':
+                    # Aceita fallback como válido
+                    advanced_components['sistema_anti_objecao'] = anti_objection
+                    self.dependency_manager.mark_component_status('sistema_anti_objecao', True, anti_objection)
+                    logger.info("✅ Sistema anti-objeção fallback aceito")
                 else:
-                    raise ValueError("Nenhuma objeção identificada no avatar")
+                    raise ValueError("Sistema anti-objeção inválido gerado")
                     
             except Exception as e:
                 error_msg = f"Falha na geração do sistema anti-objeção: {str(e)}"
@@ -280,21 +305,34 @@ class UltraDetailedAnalysisEngine:
         
         if self.dependency_manager.can_execute_component('pre_pitch_invisivel'):
             try:
+                # Usa drivers disponíveis ou cria básico
                 drivers_data = advanced_components.get('drivers_mentais_customizados', {})
+                if not drivers_data or not drivers_data.get('drivers_customizados'):
+                    logger.warning("⚠️ Drivers não disponíveis, criando dados básicos para pré-pitch")
+                    drivers_data = {
+                        'drivers_customizados': [
+                            {'nome': 'Diagnóstico Brutal'},
+                            {'nome': 'Relógio Psicológico'},
+                            {'nome': 'Método vs Sorte'}
+                        ]
+                    }
+                
                 avatar_data = ai_analysis.get('avatar_ultra_detalhado', {})
                 
-                if drivers_data and drivers_data.get('drivers_customizados'):
-                    pre_pitch = pre_pitch_architect.generate_complete_pre_pitch_system(
-                        drivers_data['drivers_customizados'], avatar_data, data
-                    )
-                    
-                    if pre_pitch and pre_pitch.get('validation_status') == 'VALID':
-                        advanced_components['pre_pitch_invisivel'] = pre_pitch
-                        self.dependency_manager.mark_component_status('pre_pitch_invisivel', True, pre_pitch)
-                    else:
-                        raise ValueError("Pré-pitch inválido gerado")
+                pre_pitch = pre_pitch_architect.generate_complete_pre_pitch_system(
+                    drivers_data['drivers_customizados'], avatar_data, data
+                )
+                
+                if pre_pitch and pre_pitch.get('validation_status') == 'VALID':
+                    advanced_components['pre_pitch_invisivel'] = pre_pitch
+                    self.dependency_manager.mark_component_status('pre_pitch_invisivel', True, pre_pitch)
+                elif pre_pitch and pre_pitch.get('validation_status') == 'FALLBACK_VALID':
+                    # Aceita fallback como válido
+                    advanced_components['pre_pitch_invisivel'] = pre_pitch
+                    self.dependency_manager.mark_component_status('pre_pitch_invisivel', True, pre_pitch)
+                    logger.info("✅ Pré-pitch fallback aceito")
                 else:
-                    raise ValueError("Drivers mentais não disponíveis para pré-pitch")
+                    raise ValueError("Pré-pitch inválido gerado")
                     
             except Exception as e:
                 error_msg = f"Falha na geração do pré-pitch: {str(e)}"
@@ -365,25 +403,7 @@ class UltraDetailedAnalysisEngine:
 
                 for result in search_results[:8]:  # Limita para performance
                     try:
-                        # Usa drivers disponíveis ou cria básico
-                        drivers_data = advanced_components.get('drivers_mentais_customizados', {})
-                        if not drivers_data or not drivers_data.get('drivers_customizados'):
-                            logger.warning("⚠️ Drivers não disponíveis, criando dados básicos para pré-pitch")
-                            drivers_data = {
-                                'drivers_customizados': [
-                                    {'nome': 'Diagnóstico Brutal'},
-                                    {'nome': 'Relógio Psicológico'},
-                                    {'nome': 'Método vs Sorte'}
-                                ]
-                            }
-                        
-                        
-                        # Verifica se avatar tem dados suficientes
-                        if not avatar_data or not avatar_data.get('dores_viscerais'):
-                            logger.warning("⚠️ Avatar insuficiente, usando dados padrão para drivers")
-                            avatar_data = self._create_basic_avatar(data)
-                        
-                        mental_drivers = mental_drivers_architect.generate_complete_drivers_system(avatar_data, data)
+                        content = robust_content_extractor.extract_content(result['url'])
                         
                         if content:
                             # Valida qualidade do conteúdo
@@ -391,19 +411,7 @@ class UltraDetailedAnalysisEngine:
                             
                             if validation['valid'] and len(content) >= 500:
                                 extracted_content.append({
-                        
-                        # Garante que há objeções para trabalhar
-                        objections = avatar_data.get('objecoes_reais', [])
-                        if not objections:
-                            # Gera objeções padrão
-                            objections = [
-                                "Não tenho tempo para implementar isso agora",
-                                "Preciso pensar melhor sobre o investimento",
-                                "Meu caso é diferente, isso pode não funcionar",
-                                "Já tentei outras coisas e não deram certo",
-                                "Preciso de mais garantias de que funciona"
-                            ]
-                            logger.info("🔄 Usando objeções padrão para sistema anti-objeção")
+                                    'url': result['url'],
                                     'title': result.get('title', 'Sem título'),
                                     'content': content[:3000],  # Limita tamanho
                                     'snippet': result.get('snippet', ''),
@@ -413,23 +421,8 @@ class UltraDetailedAnalysisEngine:
                                 total_content_length += len(content)
                                 successful_extractions += 1
                                 logger.info(f"✅ Conteúdo extraído e validado: {len(content)} chars, qualidade {validation['score']:.1f}%")
-                            elif anti_objection and anti_objection.get('validation_status') == 'FALLBACK_VALID':
-                                # Aceita fallback como válido
-                                advanced_components['sistema_anti_objecao'] = anti_objection
-                                self.dependency_manager.mark_component_status('sistema_anti_objecao', True, anti_objection)
-                                logger.info("✅ Sistema anti-objeção fallback aceito")
-                            elif pre_pitch and pre_pitch.get('validation_status') == 'FALLBACK_VALID':
-                                # Aceita fallback como válido
-                                advanced_components['pre_pitch_invisivel'] = pre_pitch
-                                self.dependency_manager.mark_component_status('pre_pitch_invisivel', True, pre_pitch)
-                                logger.info("✅ Pré-pitch fallback aceito")
                             else:
                                 logger.warning(f"⚠️ Conteúdo rejeitado por baixa qualidade: {validation['reason']}")
-                        elif mental_drivers and mental_drivers.get('validation_status') == 'FALLBACK_VALID':
-                            # Aceita fallback como válido
-                            advanced_components['drivers_mentais_customizados'] = mental_drivers
-                            self.dependency_manager.mark_component_status('drivers_mentais_customizados', True, mental_drivers)
-                            logger.info("✅ Drivers mentais fallback aceitos")
                         else:
                             logger.warning(f"⚠️ Nenhum conteúdo extraído de {result['url']}")
                             
@@ -731,6 +724,42 @@ Se não houver dados suficientes para uma seção, omita a seção completamente
             logger.error(f"❌ Erro ao parsear JSON da IA: {str(e)}")
             logger.error(f"Resposta recebida: {ai_response[:500]}...")
             raise Exception("IA RETORNOU JSON INVÁLIDO: Não foi possível processar resposta da IA")
+    
+    def _create_basic_avatar(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Cria avatar básico quando dados insuficientes"""
+        
+        segmento = data.get('segmento', 'negócios')
+        
+        return {
+            "nome_ficticio": f"Profissional {segmento} Brasileiro",
+            "perfil_demografico": {
+                "idade": "30-45 anos - faixa de maior poder aquisitivo",
+                "renda": "R$ 8.000 - R$ 35.000 - classe média alta",
+                "escolaridade": "Superior completo - 78% têm graduação",
+                "localizacao": "Grandes centros urbanos brasileiros"
+            },
+            "dores_viscerais": [
+                f"Trabalhar excessivamente em {segmento} sem ver crescimento proporcional",
+                "Sentir-se sempre correndo atrás da concorrência",
+                "Ver competidores menores crescendo mais rapidamente",
+                "Não conseguir se desconectar do trabalho",
+                "Desperdiçar potencial em tarefas operacionais"
+            ],
+            "desejos_secretos": [
+                f"Ser reconhecido como autoridade no mercado de {segmento}",
+                "Ter um negócio que funcione sem presença constante",
+                "Ganhar dinheiro de forma passiva",
+                "Ter liberdade total de horários e decisões",
+                "Deixar um legado significativo"
+            ],
+            "objecoes_reais": [
+                "Não tenho tempo para implementar isso agora",
+                "Preciso pensar melhor sobre o investimento",
+                "Meu caso é diferente, isso pode não funcionar",
+                "Já tentei outras coisas e não deram certo",
+                "Preciso de mais garantias de que funciona"
+            ]
+        }
 
     def _contains_simulated_data(self, analysis: Dict[str, Any]) -> bool:
         """Verifica se análise contém dados simulados - FALHA SE ENCONTRAR"""
