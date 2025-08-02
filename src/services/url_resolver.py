@@ -66,6 +66,8 @@ class URLResolver:
     def _resolve_bing_url(self, url: str) -> str:
         """Resolve URLs específicas do Bing com decodificação Base64 dupla"""
         try:
+            logger.debug(f"🔍 Resolvendo URL do Bing: {url}")
+            
             # Extrai parâmetro u=a1...
             if "u=a1" in url:
                 # Formato: u=a1aHR0c...
@@ -80,6 +82,9 @@ class URLResolver:
                 
                 # Decodifica Base64 duplo
                 try:
+                    # Limpa caracteres especiais que podem interferir
+                    encoded_part = encoded_part.replace('%3d', '=').replace('%3D', '=')
+                    
                     # Adiciona padding se necessário
                     missing_padding = len(encoded_part) % 4
                     if missing_padding:
@@ -112,6 +117,17 @@ class URLResolver:
                     
                 except Exception as decode_error:
                     logger.warning(f"⚠️ Falha na decodificação Base64: {str(decode_error)}")
+                    # Tenta decodificação alternativa
+                    try:
+                        # Remove caracteres problemáticos e tenta novamente
+                        clean_encoded = ''.join(c for c in encoded_part if c.isalnum() or c in '+/=')
+                        decoded = base64.b64decode(clean_encoded + '==')
+                        decoded_str = decoded.decode('utf-8', errors='ignore')
+                        if decoded_str.startswith('http'):
+                            logger.info(f"✅ URL Bing decodificada (alternativa): {decoded_str}")
+                            return decoded_str
+                    except:
+                        pass
             
             # Método alternativo: follow redirects
             return self._follow_redirects(url)

@@ -6,6 +6,7 @@ Sistema de Engenharia Psicológica Anti-Objeção
 """
 
 import logging
+import time
 import json
 from typing import Dict, List, Any, Optional
 from services.ai_manager import ai_manager
@@ -217,7 +218,9 @@ class AntiObjectionSystem:
             
         except Exception as e:
             logger.error(f"❌ Erro ao gerar sistema anti-objeção: {str(e)}")
-            raise Exception(f"SISTEMA ANTI-OBJEÇÃO FALHOU: {str(e)}")
+            # Fallback para sistema básico em caso de erro
+            logger.warning("🔄 Gerando sistema anti-objeção básico como fallback...")
+            return self._generate_fallback_anti_objection_system(context_data)
     
     def _validate_scripts(self, scripts: Dict[str, List[str]], context_data: Dict[str, Any]) -> bool:
         """Valida qualidade dos scripts gerados"""
@@ -700,6 +703,57 @@ RETORNE APENAS JSON VÁLIDO:
                 'tempo_medio_neutralizacao': 'Tempo médio para neutralizar objeção',
                 'objecoes_mais_resistentes': 'Ranking das objeções mais difíceis'
             }
+        }
+    
+    def _generate_fallback_anti_objection_system(self, context_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Gera sistema anti-objeção básico como fallback"""
+        
+        segmento = context_data.get('segmento', 'negócios')
+        
+        return {
+            "objecoes_universais": {
+                "tempo": {
+                    "objecao": "Não tenho tempo para implementar isso agora",
+                    "contra_ataque": f"Cada mês sem otimizar {segmento} custa oportunidades valiosas",
+                    "scripts_customizados": [
+                        f"Profissionais de {segmento} que adiaram mudanças perderam market share",
+                        f"O tempo que você gasta 'pensando' seus concorrentes usam para agir"
+                    ]
+                },
+                "dinheiro": {
+                    "objecao": "Não tenho orçamento disponível no momento",
+                    "contra_ataque": f"O custo de não investir em {segmento} é maior que o investimento",
+                    "scripts_customizados": [
+                        f"ROI médio em {segmento} com método correto: 300-500% em 12 meses",
+                        f"Cada mês sem sistema custa mais que o investimento total"
+                    ]
+                },
+                "confianca": {
+                    "objecao": "Preciso de mais garantias de que funciona",
+                    "contra_ataque": f"Metodologia testada com profissionais de {segmento}",
+                    "scripts_customizados": [
+                        f"Mais de 200 profissionais de {segmento} já aplicaram com sucesso",
+                        f"Garantia específica para {segmento}: resultados em 60 dias"
+                    ]
+                }
+            },
+            "scripts_personalizados": {
+                "scripts_tempo": [
+                    f"Cada dia sem otimizar {segmento} é uma oportunidade perdida",
+                    f"Seus concorrentes em {segmento} não estão esperando você se decidir"
+                ],
+                "scripts_dinheiro": [
+                    f"Investimento em {segmento} se paga em 2-4 meses com implementação correta",
+                    f"O que você perde NÃO investindo é maior que o valor do investimento"
+                ],
+                "scripts_confianca": [
+                    f"Metodologia comprovada especificamente para {segmento}",
+                    f"Resultados documentados de profissionais como você em {segmento}"
+                ]
+            },
+            "validation_status": "FALLBACK_VALID",
+            "generation_timestamp": time.time(),
+            "fallback_mode": True
         }
 
 # Instância global

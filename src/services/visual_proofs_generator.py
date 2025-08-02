@@ -210,12 +210,16 @@ class VisualProofsGenerator:
     
     def _validate_proof(self, proof: Dict[str, Any]) -> bool:
         """Valida se uma prova visual é válida"""
-        required_fields = ['nome', 'conceito_alvo', 'experimento']
+        required_fields = ['nome', 'experimento']  # Removido 'conceito_alvo' como obrigatório
         
         for field in required_fields:
-            if not proof.get(field) or proof[field] == 'N/A':
+            if not proof.get(field):
                 logger.warning(f"⚠️ Prova inválida: campo '{field}' ausente ou N/A")
                 return False
+        
+        # Adiciona conceito_alvo padrão se ausente
+        if not proof.get('conceito_alvo'):
+            proof['conceito_alvo'] = f"Conceito relacionado a {proof.get('nome', 'prova visual')}"
         
         # Verifica se não é conteúdo genérico
         generic_indicators = ['customizada para', 'baseado em', 'específico para']

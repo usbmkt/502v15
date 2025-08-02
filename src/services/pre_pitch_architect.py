@@ -6,6 +6,7 @@ Arquiteto do Pré-Pitch Invisível - Orquestração Psicológica
 """
 
 import logging
+import time
 import json
 from typing import Dict, List, Any, Optional
 from services.ai_manager import ai_manager
@@ -576,6 +577,75 @@ RETORNE APENAS JSON VÁLIDO:
             return 'Crescente'
         else:
             return 'Média'
+    
+    def _generate_fallback_pre_pitch_system(self, context_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Gera sistema de pré-pitch básico como fallback"""
+        
+        segmento = context_data.get('segmento', 'negócios')
+        
+        return {
+            'orquestracao_emocional': {
+                'sequencia_psicologica': [
+                    {
+                        'fase': 'quebra',
+                        'objetivo': 'Quebrar padrão e despertar consciência',
+                        'duracao': '3-5 minutos',
+                        'intensidade': 'Alta',
+                        'drivers_utilizados': ['Diagnóstico Brutal'],
+                        'resultado_esperado': 'Desconforto produtivo'
+                    },
+                    {
+                        'fase': 'vislumbre',
+                        'objetivo': 'Mostrar possibilidades',
+                        'duracao': '5-7 minutos',
+                        'intensidade': 'Esperançosa',
+                        'drivers_utilizados': ['Método vs Sorte'],
+                        'resultado_esperado': 'Desejo de mudança'
+                    },
+                    {
+                        'fase': 'necessidade',
+                        'objetivo': 'Criar necessidade de solução',
+                        'duracao': '3-4 minutos',
+                        'intensidade': 'Definitiva',
+                        'drivers_utilizados': ['Relógio Psicológico'],
+                        'resultado_esperado': 'Urgência de ação'
+                    }
+                ]
+            },
+            'roteiro_completo': {
+                'abertura': {
+                    'tempo': '3-5 minutos',
+                    'objetivo': 'Quebrar padrão e despertar consciência',
+                    'script': f"Deixa eu te fazer uma pergunta sobre {segmento}... Há quanto tempo você está no mesmo nível? A verdade é que a maioria dos profissionais trabalha muito mas não sai do lugar.",
+                    'frases_chave': [
+                        f"A verdade sobre {segmento} que ninguém te conta",
+                        "Isso vai doer, mas precisa ser dito"
+                    ],
+                    'transicao': "E sabe por que isso acontece?"
+                },
+                'desenvolvimento': {
+                    'tempo': '8-12 minutos',
+                    'objetivo': 'Amplificar dor e mostrar possibilidades',
+                    'script': f"Cada dia que passa sem otimizar {segmento} é dinheiro saindo do seu bolso. Enquanto você está 'pensando', seus concorrentes estão agindo. Mas existe um caminho diferente...",
+                    'momentos_criticos': [
+                        "Cálculo da perda financeira por inação",
+                        "Comparação com concorrentes que agem"
+                    ],
+                    'escalada_emocional': "Aumentar pressão gradualmente, depois mostrar esperança"
+                },
+                'fechamento': {
+                    'tempo': '2-3 minutos',
+                    'objetivo': 'Transição para solução',
+                    'script': f"Agora você tem duas escolhas em {segmento}: continuar como está ou seguir um método comprovado. Eu vou te mostrar exatamente como sair dessa situação...",
+                    'ponte_oferta': "Mas antes, preciso saber se você está realmente pronto para mudar...",
+                    'estado_mental_ideal': "Ansioso pela solução, pronto para agir"
+                }
+            },
+            'validation_status': 'FALLBACK_VALID',
+            'generation_timestamp': time.time(),
+            'fallback_mode': True,
+            'duracao_total': '13-20 minutos'
+        }
 
 # Instância global
 pre_pitch_architect = PrePitchArchitect()

@@ -442,12 +442,12 @@ class RobustContentExtractor:
             except requests.exceptions.Timeout:
                 logger.warning(f"⏰ Timeout na tentativa {attempt + 1} para {url}")
                 if attempt < max_retries - 1:
-                    time.sleep(2)
+                    time.sleep(2 + random.uniform(0, 2))  # Delay aleatório
                     continue
             except Exception as e:
                 logger.error(f"❌ Erro ao baixar {url} (tentativa {attempt + 1}): {str(e)}")
                 if attempt < max_retries - 1:
-                    time.sleep(2)
+                    time.sleep(2 + random.uniform(0, 2))  # Delay aleatório
                     continue
         
         return None

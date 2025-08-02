@@ -307,6 +307,11 @@ class ProductionSearchManager:
         self.error_counts[provider] = self.error_counts.get(provider, 0) + 1
         self.providers[provider]['error_count'] = self.error_counts[provider]
         self.providers[provider]['last_error'] = str(error)
+        
+        # Aumenta delay para este provedor se erro 429
+        if '429' in str(error) or 'rate limit' in str(error).lower():
+            self.request_delays[provider] = min(self.request_delays.get(provider, 1.0) * 2, 30.0)
+            logger.warning(f"⚠️ Rate limit detectado para {provider}, aumentando delay para {self.request_delays[provider]:.1f}s")
 
         # Desabilita temporariamente se muitos erros
         if self.error_counts[provider] >= 5:

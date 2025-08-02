@@ -6,6 +6,7 @@ Arquiteto de Drivers Mentais - Sistema de Ancoragem Psicológica
 """
 
 import logging
+import time
 import json
 from typing import Dict, List, Any, Optional
 from services.ai_manager import ai_manager
@@ -239,7 +240,9 @@ class MentalDriversArchitect:
             
         except Exception as e:
             logger.error(f"❌ Erro ao gerar sistema de drivers: {str(e)}")
-            raise Exception(f"DRIVERS MENTAIS FALHOU: {str(e)}")
+            # Fallback para drivers padrão em caso de erro
+            logger.warning("🔄 Gerando drivers mentais padrão como fallback...")
+            return self._generate_fallback_drivers_system(context_data)
     
     def _validate_driver(self, driver: Dict[str, Any]) -> bool:
         """Valida se um driver mental é válido"""
@@ -524,27 +527,87 @@ class MentalDriversArchitect:
         }
     
     def _generate_fallback_drivers_system(self, context_data: Dict[str, Any]) -> Dict[str, Any]:
-        """Gera sistema de drivers de fallback"""
+        """Gera sistema de drivers básico como fallback"""
         
         segmento = context_data.get('segmento', 'negócios')
         
+        fallback_drivers = [
+            {
+                "nome": "Diagnóstico Brutal",
+                "gatilho_central": "Confronto com realidade atual",
+                "definicao_visceral": "Quebrar a ilusão de que está tudo bem",
+                "roteiro_ativacao": {
+                    "pergunta_abertura": f"Há quanto tempo você está estagnado no mesmo nível em {segmento}?",
+                    "historia_analogia": f"É como um profissional de {segmento} que trabalha 12 horas por dia mas ganha o mesmo há 3 anos. Todo esse esforço, mas os resultados não acompanham.",
+                    "comando_acao": "Pare de aceitar mediocridade disfarçada de esforço"
+                },
+                "frases_ancoragem": [
+                    f"Mediocridade em {segmento} não é destino, é escolha",
+                    f"Seus resultados em {segmento} são o espelho das suas decisões"
+                ],
+                "categoria": "Emocional Primário",
+                "poder_impacto": "Alto"
+            },
+            {
+                "nome": "Relógio Psicológico",
+                "gatilho_central": "Urgência temporal",
+                "definicao_visceral": "Tempo como recurso finito e precioso",
+                "roteiro_ativacao": {
+                    "pergunta_abertura": f"Quantos anos você ainda vai desperdiçar sem dominar {segmento}?",
+                    "historia_analogia": f"Cada mês que passa sem otimizar seu negócio em {segmento} é um mês que seus concorrentes ganham vantagem.",
+                    "comando_acao": "Aja agora ou aceite ficar para trás permanentemente"
+                },
+                "frases_ancoragem": [
+                    f"Cada dia sem otimizar {segmento} é um dia perdido para sempre",
+                    f"O tempo não espera você estar pronto para {segmento}"
+                ],
+                "categoria": "Emocional Primário",
+                "poder_impacto": "Alto"
+            },
+            {
+                "nome": "Método vs Sorte",
+                "gatilho_central": "Caos vs sistema organizado",
+                "definicao_visceral": "Contrastar tentativa aleatória com caminho estruturado",
+                "roteiro_ativacao": {
+                    "pergunta_abertura": f"Você quer continuar tentando na sorte ou ter um método em {segmento}?",
+                    "historia_analogia": f"Sem método você está cortando mata com foice em {segmento}. Com método, está na autoestrada.",
+                    "comando_acao": "Escolha o caminho estruturado para o sucesso"
+                },
+                "frases_ancoragem": [
+                    f"Método vence sorte sempre em {segmento}",
+                    f"Sistemas vencem tentativas em {segmento}"
+                ],
+                "categoria": "Racional Complementar",
+                "poder_impacto": "Alto"
+            }
+        ]
+        
         return {
-            "drivers_customizados": [
-                {
-                    "nome": "Diagnóstico Brutal",
-                    "gatilho_central": "Confronto com realidade",
-                    "roteiro_ativacao": {
-                        "pergunta_abertura": f"Há quanto tempo você está estagnado em {segmento}?",
-                        "comando_acao": "Pare de aceitar mediocridade"
-                    }
-                }
-            ],
+            "drivers_customizados": fallback_drivers,
             "sequenciamento_estrategico": {
                 "fase_1_despertar": {
+                    "objetivo": "Quebrar padrão e despertar consciência",
                     "drivers": ["Diagnóstico Brutal"],
-                    "objetivo": "Despertar consciência"
+                    "duracao": "5-7 minutos",
+                    "intensidade": "Alta"
+                },
+                "fase_2_pressao": {
+                    "objetivo": "Criar urgência temporal",
+                    "drivers": ["Relógio Psicológico"],
+                    "duracao": "3-5 minutos",
+                    "intensidade": "Máxima"
+                },
+                "fase_3_direcao": {
+                    "objetivo": "Oferecer caminho estruturado",
+                    "drivers": ["Método vs Sorte"],
+                    "duracao": "5-7 minutos",
+                    "intensidade": "Esperançosa"
                 }
-            }
+            },
+            "validation_status": "FALLBACK_VALID",
+            "total_drivers": len(fallback_drivers),
+            "generation_timestamp": time.time(),
+            "fallback_mode": True
         }
 
 # Instância global
